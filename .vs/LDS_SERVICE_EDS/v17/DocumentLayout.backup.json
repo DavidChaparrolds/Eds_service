@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\david.chaparro\\source\\repos\\LDS_SERVICE_EDS\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}|LDS_SERVICE_EDS\\LDS_SERVICE_EDS.csproj|c:\\users\\david.chaparro\\source\\repos\\lds_service_eds\\lds_service_eds\\service1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}|LDS_SERVICE_EDS\\LDS_SERVICE_EDS.csproj|solutionrelative:lds_service_eds\\service1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 295,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Service1.cs [Dise\u00F1o]",
+              "DocumentMoniker": "C:\\Users\\david.chaparro\\source\\repos\\LDS_SERVICE_EDS\\LDS_SERVICE_EDS\\Service1.cs",
+              "RelativeDocumentMoniker": "LDS_SERVICE_EDS\\Service1.cs",
+              "ToolTip": "C:\\Users\\david.chaparro\\source\\repos\\LDS_SERVICE_EDS\\LDS_SERVICE_EDS\\Service1.cs [Dise\u00F1o]",
+              "RelativeToolTip": "LDS_SERVICE_EDS\\Service1.cs [Dise\u00F1o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-15T19:50:53.574Z",
+              "EditorCaption": " [Dise\u00F1o]"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{e5c86464-96be-4d7c-9a8b-abcb3bbf5f92}"
+            }
+          ]
+        },
+        {
+          "DockedWidth": 105,
+          "SelectedChildIndex": -1,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

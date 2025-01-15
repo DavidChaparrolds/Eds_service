@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LDS_SERVICE_EDS", "LDS_SERVICE_EDS\LDS_SERVICE_EDS.csproj", "{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {329E5C3C-E94D-4B54-90A9-41CD14DB3F7D}
+	EndGlobalSection
+EndGlobal
