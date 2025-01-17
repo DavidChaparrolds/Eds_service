@@ -29,7 +29,9 @@
         private void InitializeComponent()
         {
             this.ProcesoConteo = new System.Timers.Timer();
+            this.LogEventos = new System.Diagnostics.EventLog();
             ((System.ComponentModel.ISupportInitialize)(this.ProcesoConteo)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.LogEventos)).BeginInit();
             // 
             // ProcesoConteo
             // 
@@ -37,15 +39,21 @@
             this.ProcesoConteo.Interval = 500D;
             this.ProcesoConteo.Elapsed += new System.Timers.ElapsedEventHandler(this.ProcesoConteo_Elapsed);
             // 
+            // LogEventos
+            // 
+            this.LogEventos.EntryWritten += new System.Diagnostics.EntryWrittenEventHandler(this.eventLog1_EntryWritten);
+            // 
             // Lds_service_eds
             // 
             this.ServiceName = "Lds_service_eds";
             ((System.ComponentModel.ISupportInitialize)(this.ProcesoConteo)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.LogEventos)).EndInit();
 
         }
 
         #endregion
 
         private System.Timers.Timer ProcesoConteo;
+        private System.Diagnostics.EventLog LogEventos;
     }
 }

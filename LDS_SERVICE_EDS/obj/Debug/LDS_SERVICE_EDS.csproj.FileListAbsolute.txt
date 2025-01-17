@@ -1,0 +1,17 @@
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\LDS_SERVICE_EDS.exe.config
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\LDS_SERVICE_EDS.exe
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\LDS_SERVICE_EDS.pdb
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\EntityFramework.dll
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\Newtonsoft.Json.dll
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\EntityFramework.xml
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\Newtonsoft.Json.xml
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\obj\Debug\LDS_SERVICE_EDS.csproj.AssemblyReference.cache
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\obj\Debug\LDS_SERVICE_EDS.Lds_service_eds.resources
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\obj\Debug\LDS_SERVICE_EDS.ProjectInstaller.resources
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\obj\Debug\LDS_SERVICE_EDS.csproj.GenerateResource.cache
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\obj\Debug\LDS_SERVICE_EDS.csproj.CoreCompileInputs.cache
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\obj\Debug\LDS_SERV.D48FB0CC.Up2Date
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\obj\Debug\LDS_SERVICE_EDS.exe
+C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\obj\Debug\LDS_SERVICE_EDS.pdb

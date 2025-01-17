@@ -34,9 +34,20 @@ namespace LDS_SERVICE_EDS
         {
             this.cadena = cadena;
             this.url = url;
-            this.timeout = timeout;
-            InitializeComponent();
+            this.timeout = timeout; 
             this.delay = delay;
+            InitializeComponent();
+            LogEventos = new System.Diagnostics.EventLog();
+
+
+            if (!System.Diagnostics.EventLog.SourceExists("LdsServiceEds"))
+            {
+                System.Diagnostics.EventLog.CreateEventSource("LdsServiceEds", "Application");
+            }
+
+            LogEventos.Source = "LdsServiceEds";
+            LogEventos.Log = "Application";
+
         }
 
         /*Obtener Venta*/
@@ -60,14 +71,14 @@ namespace LDS_SERVICE_EDS
                         {
                             string responseBody = await response.Content.ReadAsStringAsync();
                             var ventas = JsonConvert.DeserializeObject<List<VentaDto>>(responseBody);
-                            Console.WriteLine("Respuesta exitosa:");
-                            Console.WriteLine($"Código: {response.StatusCode}");
+                            Logger.EscribirLog("Respuesta exitosa:");
+                            Logger.EscribirLog($"Código: {response.StatusCode}");
                             return ventas;
                         }
                         else
                         {
-                            Console.WriteLine($"Error en la solicitud de ventas. Código: {response.StatusCode}");
-                            Console.WriteLine($"Detalle: {await response.Content.ReadAsStringAsync()}");
+                            Logger.EscribirLog($"Error en la solicitud de ventas. Código: {response.StatusCode}");
+                            Logger.EscribirLog($"Detalle: {await response.Content.ReadAsStringAsync()}");
                             return null;
                         }
                     }
@@ -75,13 +86,13 @@ namespace LDS_SERVICE_EDS
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ocurrió un error al obtener las ventas: {ex.Message}");
+                Logger.EscribirLog($"Ocurrió un error al obtener las ventas: {ex.Message}");
                 return null;
             }
             finally
             {
                 posicionesEnProceso.TryRemove(numPosicion, out _);
-                Console.WriteLine($"Hilo liberado para posición {numPosicion}.");
+                Logger.EscribirLog($"Hilo liberado para posición {numPosicion}.");
             }
         }
 
@@ -113,20 +124,20 @@ namespace LDS_SERVICE_EDS
                         }
                         else
                         {
-                            Console.WriteLine($"Error en la solicitud de estado. Código: {response.StatusCode}");
-                            Console.WriteLine($"Detalle: {await response.Content.ReadAsStringAsync()}");
+                            Logger.EscribirLog($"Error en la solicitud de estado. Código: {response.StatusCode}");
+                            Logger.EscribirLog($"Detalle: {await response.Content.ReadAsStringAsync()}");
                             return null;
                         }
                     }
                     catch (TaskCanceledException tcex)
                     {
                         // Puede significar que se cumplió el timeout o se canceló manualmente
-                        Console.WriteLine($"Solicitud cancelada o timeout: {tcex.Message}");
+                        Logger.EscribirLog($"Solicitud cancelada o timeout: {tcex.Message}");
                         return null;
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Ocurrió un error al obtener el estado: {ex.Message}");
+                        Logger.EscribirLog($"Ocurrió un error al obtener el estado: {ex.Message}");
                         return null;
                     }
                 }
@@ -150,7 +161,7 @@ namespace LDS_SERVICE_EDS
 
                     if (estado != null)
                     {
-                        Console.WriteLine($"Estado recibido: {estado.Estado}, Para posicion {numPosicion}");
+                       Logger.EscribirLog($"Estado recibido: {estado.Estado}, Para posicion {numPosicion}");
 
                         // Si el estado es 'reporte' o 'espera', finalizar el bucle
                         if (estado.Estado.Equals("reporte", StringComparison.OrdinalIgnoreCase) ||
@@ -158,13 +169,13 @@ namespace LDS_SERVICE_EDS
                         {
 
                             List<VentaDto> ventas = await ObtenerVentasAsync(url, numPosicion, timeout);
-                            Console.WriteLine("************************** Obtener Venta ***********************************");
+                           Logger.EscribirLog("************************** Obtener Venta ***********************************");
 
                             if (ventas != null && ventas.Count > 0)
                             {
                                 foreach (var venta in ventas)
                                 {
-                                    Console.WriteLine($"Idventa: {venta.IdVenta}, FechaVenta {venta.FechaVenta}, Dinero {venta.Dinero}, Volumen {venta.Volumen}, TotalDineroInicial {venta.TotalDineroInicial}, TotalDineroFinal {venta.TotalDineroFinal}, TotalVolumenInicial  {venta.TotalVolumenInicial}, TotalVolumenFinal {venta.TotalVolumenFinal}, IdPosicion {venta.IdPosicion},  NumeroManguera {venta.NumeroManguera}, PrecioVenta {venta.PrecioVenta}, IdProgramacion {venta.IdProgramacion}, IdProducto {venta.IdProducto}");
+                                   Logger.EscribirLog($"Idventa: {venta.IdVenta}, FechaVenta {venta.FechaVenta}, Dinero {venta.Dinero}, Volumen {venta.Volumen}, TotalDineroInicial {venta.TotalDineroInicial}, TotalDineroFinal {venta.TotalDineroFinal}, TotalVolumenInicial  {venta.TotalVolumenInicial}, TotalVolumenFinal {venta.TotalVolumenFinal}, IdPosicion {venta.IdPosicion},  NumeroManguera {venta.NumeroManguera}, PrecioVenta {venta.PrecioVenta}, IdProgramacion {venta.IdProgramacion}, IdProducto {venta.IdProducto}");
                                 }
 
                                 VentaDto ventaResultado = ventas.Where(x =>
@@ -174,26 +185,27 @@ namespace LDS_SERVICE_EDS
                                 x.TotalDineroInicial == resultadoVentaDto.TotalDineroInicial &&
                                 x.TotalVolumenInicial == resultadoVentaDto.TotalVolumenInicial).First();
 
-                                Console.WriteLine($"Idventa: {ventaResultado.IdVenta}, FechaVenta {ventaResultado.FechaVenta}, Dinero {ventaResultado.Dinero}, Volumen {ventaResultado.Volumen}, TotalDineroInicial {ventaResultado.TotalDineroInicial}, TotalDineroFinal {ventaResultado.TotalDineroFinal}, TotalVolumenInicial  {ventaResultado.TotalVolumenInicial}, TotalVolumenFinal {ventaResultado.TotalVolumenFinal}, IdPosicion {ventaResultado.IdPosicion},  NumeroManguera {ventaResultado.NumeroManguera}, PrecioVenta {ventaResultado.PrecioVenta}, IdProgramacion {ventaResultado.IdProgramacion}, IdProducto {ventaResultado.IdProducto}");
+                               Logger.EscribirLog($"Idventa: {ventaResultado.IdVenta}, FechaVenta {ventaResultado.FechaVenta}, Dinero {ventaResultado.Dinero}, Volumen {ventaResultado.Volumen}, TotalDineroInicial {ventaResultado.TotalDineroInicial}, TotalDineroFinal {ventaResultado.TotalDineroFinal}, TotalVolumenInicial  {ventaResultado.TotalVolumenInicial}, TotalVolumenFinal {ventaResultado.TotalVolumenFinal}, IdPosicion {ventaResultado.IdPosicion},  NumeroManguera {ventaResultado.NumeroManguera}, PrecioVenta {ventaResultado.PrecioVenta}, IdProgramacion {ventaResultado.IdProgramacion}, IdProducto {ventaResultado.IdProducto}");
 
+                                await AgregarTablaPagos(resultadoVentaDto.Gasolina, ventaResultado.PrecioVenta, ventaResultado.Volumen, resultadoVentaDto.TipoProgramacion, ventaResultado.Dinero);
 
                             }
                             else
                             {
-                                Console.WriteLine("No se obtuvieron ventas o la lista está vacía.");
+                                Logger.EscribirLog("No se obtuvieron ventas o la lista está vacía.");
 
                             }
 
-                            Console.WriteLine("Estado final alcanzado. Terminando consulta periódica.");
+                           Logger.EscribirLog("Estado final alcanzado. Terminando consulta periódica.");
                             break;
                         }
                     }
                     else
                     {
-                        Console.WriteLine("No se pudo obtener el estado. Intentando nuevamente...");
+                       Logger.EscribirLog("No se pudo obtener el estado. Intentando nuevamente...");
                         if (numeroIntentos > 5)
                         {
-                            Console.WriteLine("Terminando el programa excedio el numero de intentos");
+                           Logger.EscribirLog("Terminando el programa excedio el numero de intentos");
                             break;
                         }
                         numeroIntentos++;
@@ -202,66 +214,37 @@ namespace LDS_SERVICE_EDS
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ocurrió un error durante la consulta periódica: {ex.Message}");
+               Logger.EscribirLog($"Ocurrió un error durante la consulta periódica: {ex.Message}");
             }
         }
 
+
+
         /*Llamado Concurrente*/
 
-        public async Task IniciarProcesoConcurrente(string url, int timeout, int numPosicion, int delay, ResultadoVentaDto resultadoVentaDto1)
+        public async Task IniciarProcesoConcurrente(string url, int timeout, int numPosicion, int delay, ResultadoVentaDto resultadoVentaDto1, int idRegistro)
         {
             if (!posicionesEnProceso.ContainsKey(numPosicion))
             {
+                await ActualizarProcesadoAsync(idRegistro);
                 Task nuevaTarea = ConsultarEstadoPeriodicamenteAsync(url, timeout, numPosicion, delay, resultadoVentaDto1);
 
                 if (posicionesEnProceso.TryAdd(numPosicion, nuevaTarea))
                 {
-                    Console.WriteLine($"Hilo iniciado para posición {numPosicion}.");
+                   Logger.EscribirLog($"Hilo iniciado para posición {numPosicion}.");
                 }
                 else
                 {
-                    Console.WriteLine($"No se pudo iniciar el hilo para posición {numPosicion}.");
+                   Logger.EscribirLog($"No se pudo iniciar el hilo para posición {numPosicion}.");
                 }
             }
             else
             {
-                Console.WriteLine($"La posición {numPosicion} ya está siendo procesada.");
+               Logger.EscribirLog($"La posición {numPosicion} ya está siendo procesada.");
             }
         }
 
-
-
-
-
-
-        protected override void OnStart(string[] args)
-        {
-            string dataSource = args[0];
-            string initialCatalog = args[1];
-            string userId = args[2];
-            string password = args[3];
-
-            // Imprimir los valores de las variables
-            Console.WriteLine("DataSource: " + dataSource);
-            Console.WriteLine("InitialCatalog: " + initialCatalog);
-            Console.WriteLine("UserId: " + userId);
-            Console.WriteLine("Password: " + password);
-            string connectionString;
-            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(userId))
-            {
-
-                Logger.EscribirLog("paso para la cadena de conexion con autenticacion de windows");
-                connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};Integrated Security=True";
-            }
-            else
-            {
-                connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};encrypt=False;MultipleActiveResultSets=True";
-
-            }
-
-        }
-
-
+        /*Obtener datos de base de datos*/
 
         private async Task<List<LDS_VENTAS_EDS>> obtenerDatosPreset()
         {
@@ -284,7 +267,7 @@ namespace LDS_SERVICE_EDS
 	                                TotalDineroInicial,
 	                                TotalVolumenInicial
 	                                 FROM LDS_VENTAS_EDS
-                             WHERE Facturado = 0"; // Ajusta la condición que necesites
+                             WHERE Procesado = 0"; // Ajusta la condición que necesites
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -312,11 +295,11 @@ namespace LDS_SERVICE_EDS
                     }
                 }
 
-                Console.WriteLine($"Se obtuvieron {listaDatos.Count} registros de la tabla LDS_VENTAS_EDS.");
+               Logger.EscribirLog($"Se obtuvieron {listaDatos.Count} registros de la tabla LDS_VENTAS_EDS.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al consultar la tabla LDS_VENTAS_EDS: {ex.Message}");
+               Logger.EscribirLog($"Error al consultar la tabla LDS_VENTAS_EDS: {ex.Message}");
                 // Manejo adicional de la excepción (log, throw, etc.)
             }
 
@@ -324,15 +307,108 @@ namespace LDS_SERVICE_EDS
 
         }
 
+        /*Cambiar valor a procesado  cuando un hilo empieza la operacion*/
+        private async Task ActualizarProcesadoAsync(int idPosicion)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(cadena))
+                {
+                    await conn.OpenAsync();
+
+                    string query = @"UPDATE LDS_VENTAS_EDS
+                             SET Procesado = 1
+                             WHERE Id = @IdPosicion";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@IdPosicion", idPosicion);
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+                        if (rowsAffected > 0)
+                        {
+                           Logger.EscribirLog($"Registro con IdPosicion {idPosicion} marcado como Procesado.");
+                        }
+                        else
+                        {
+                           Logger.EscribirLog($"No se encontró el registro con IdPosicion {idPosicion} para actualizar.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+               Logger.EscribirLog($"Error al actualizar la columna Procesado para IdPosicion {idPosicion}: {ex.Message}");
+            }
+        }
+
+
+        /*Agregara tabla de LDS_PAGAR_EDS*/
+        private async Task AgregarTablaPagos(string gasolina, double precioVenta, double volumen, string tipoProgramacion, double importe)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(cadena))
+                {
+                    await conn.OpenAsync();
+
+                    string query = @"INSERT INTO LDS_PAGAR_EDS (Gasolina, PrecioVenta, Volumen, TipoProgramacion, Importe, Facturado)
+                             VALUES (@Gasolina, @PrecioVenta, @Volumen, @TipoProgramacion, @Importe, 0)";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        // Asignar los parámetros de la consulta
+                        cmd.Parameters.AddWithValue("@Gasolina", gasolina);
+                        cmd.Parameters.AddWithValue("@PrecioVenta", precioVenta);
+                        cmd.Parameters.AddWithValue("@Volumen", volumen);
+                        cmd.Parameters.AddWithValue("@TipoProgramacion", tipoProgramacion);
+                        cmd.Parameters.AddWithValue("@Importe", importe);
+
+                        // Ejecutar la consulta de forma asíncrona
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+                        if (rowsAffected > 0)
+                        {
+                           Logger.EscribirLog("Registro agregado exitosamente a la tabla LDS_PAGAR_EDS.");
+                        }
+                        else
+                        {
+                           Logger.EscribirLog("No se pudo agregar el registro a la tabla LDS_PAGAR_EDS.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+               Logger.EscribirLog($"Error al agregar registro a la tabla LDS_PAGAR_EDS: {ex.Message}");
+            }
+        }
+
+
+
+
+
+        protected override void OnStart(string[] args)
+        {
+            Logger.EscribirLog("Inicia proceso ...");
+
+        }
+
+
+
+
         protected override void OnStop()
         {
+            Logger.EscribirLog("Terminar proceso OnStop...");
         }
 
         private async void ProcesoConteo_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
+            LogEventos.WriteEntry($"ProcesoConteo_Elapsed se ejecutó a las {DateTime.Now}",
+                       EventLogEntryType.Information);
             try
             {
-                Console.WriteLine("Iniciando ProcesoConteo_Elapsed...");
+                Logger.EscribirLog("Iniciando ProcesoConteo_Elapsed...");
 
                 // 1. Obtener registros pendientes de la tabla LDS_VENTAS_EDS
                 List<LDS_VENTAS_EDS> ventasPendientes = await obtenerDatosPreset();
@@ -340,7 +416,7 @@ namespace LDS_SERVICE_EDS
                 if (ventasPendientes != null && ventasPendientes.Count > 0)
                 {
                     ResultadoVentaDto resultadoVentaDto;
-                    Console.WriteLine($"Se encontraron {ventasPendientes.Count} registros pendientes en LDS_VENTAS_EDS.");
+                    Logger.EscribirLog($"Se encontraron {ventasPendientes.Count} registros pendientes en LDS_VENTAS_EDS.");
 
               
 
@@ -362,7 +438,7 @@ namespace LDS_SERVICE_EDS
                         // _ = IniciarProcesoConcurrente(url, timeout, venta.IdPosicion, delay, resultadoVentaDto1);
                         // El guion bajo (_) indica que no hacemos 'await' de esa tarea
                         // y dejamos que cada proceso se ejecute en segundo plano.
-                        await IniciarProcesoConcurrente(url, timeout, venta.IdPosicion, delay, resultadoVentaDto);
+                        await IniciarProcesoConcurrente(url, timeout, venta.IdPosicion, delay, resultadoVentaDto, venta.Id);
                     }
 
 
@@ -372,14 +448,19 @@ namespace LDS_SERVICE_EDS
                 }
                 else
                 {
-                    Console.WriteLine("No hay registros pendientes en la tabla LDS_VENTAS_EDS.");
+                    Logger.EscribirLog("No hay registros pendientes en la tabla LDS_VENTAS_EDS.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error en ProcesoConteo_Elapsed: {ex.Message}");
+                Logger.EscribirLog($"Error en ProcesoConteo_Elapsed: {ex.Message}");
                 // Manejo adicional de la excepción (Log, Event Log, etc.)
             }
+
+        }
+
+        private void eventLog1_EntryWritten(object sender, EntryWrittenEventArgs e)
+        {
 
         }
     }

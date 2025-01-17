@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EDS.tools
 {
-    internal class Logger
+    public class Logger
     {
 
         private static string logDirectory = Path.Combine(System.Environment.SystemDirectory.Substring(0, 3), "LineaDatascan\\Logs");
@@ -16,7 +16,7 @@ namespace EDS.tools
         {
             if (!Directory.Exists(Logger.logDirectory))
                 Directory.CreateDirectory(Logger.logDirectory);
-            string str = Path.Combine(Logger.logDirectory, "EDS.txt");
+            string str = Path.Combine(Logger.logDirectory, "EDS_SERVCE.txt");
             long num = 0;
             lock (str)
             {

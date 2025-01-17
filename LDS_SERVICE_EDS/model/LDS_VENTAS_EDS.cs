@@ -23,6 +23,14 @@ namespace LDS_SERVICE_EDS.model
         [Column(TypeName = "numeric")]
         public decimal PrecioVenta { get; set; }
 
-        public bool Facturado { get; set; }
+        [Required]
+        [StringLength(100)]
+        public string Gasolina { get; set; }
+
+        [Required]
+        [StringLength(100)]
+        public string TipoProgramacion { get; set; }
+
+        public bool Procesado { get; set; }
     }
 }
