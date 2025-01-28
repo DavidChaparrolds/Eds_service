@@ -1,0 +1,13 @@
+﻿Instalando ensamblado 'C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\LDS_SERVICE_EDS.exe'.
+Los parámetros afectados son:
+   logtoconsole = 
+   logfile = C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\LDS_SERVICE_EDS.InstallLog
+   assemblypath = C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\LDS_SERVICE_EDS.exe
+Instalando el servicio Lds_service_eds...
+El servicio Lds_service_eds se ha instalado correctamente.
+Creando el origen de EventLog Lds_service_eds en el registro Application...
+Confirmando ensamblado 'C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\LDS_SERVICE_EDS.exe'.
+Los parámetros afectados son:
+   logtoconsole = 
+   logfile = C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\LDS_SERVICE_EDS.InstallLog
+   assemblypath = C:\Users\david.chaparro\source\repos\LDS_SERVICE_EDS\LDS_SERVICE_EDS\bin\Debug\LDS_SERVICE_EDS.exe

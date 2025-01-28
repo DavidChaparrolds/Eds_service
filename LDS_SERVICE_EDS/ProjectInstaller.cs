@@ -15,5 +15,10 @@ namespace LDS_SERVICE_EDS
         {
             InitializeComponent();
         }
+
+        private void serviceProcessInstaller1_AfterInstall(object sender, InstallEventArgs e)
+        {
+
+        }
     }
 }

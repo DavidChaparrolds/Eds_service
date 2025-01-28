@@ -14,7 +14,7 @@ namespace EDS.model
 
     namespace EDS.model
     {
-        internal class PresetDto
+        public class PresetDto
         {
             public int Posicion { get; set; }
 
@@ -22,8 +22,7 @@ namespace EDS.model
 
             public string TipoProgramacion { get; set; }
 
-            public int ValorProgramado { get; set; }
-
+            public double ValorProgramado { get; set; }
             public double PrecioProducto { get; set; }
 
         }

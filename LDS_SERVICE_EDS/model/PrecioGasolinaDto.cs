@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EDS.model
 {
-    internal class PrecioGasolinaDto
+    public class PrecioGasolinaDto
     {
         public int IdProducto { get; set; }
         public string Nombre { get; set; }

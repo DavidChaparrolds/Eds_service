@@ -3,6 +3,7 @@ using EDS.model.EDS.model;
 using EDS.tools;
 using LDS_EDS.model;
 using LDS_SERVICE_EDS.model;
+using LDS_SERVICE_EDS.tools;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
@@ -30,13 +31,18 @@ namespace LDS_SERVICE_EDS
         private int delay;
         private static ConcurrentDictionary<int, Task> posicionesEnProceso = new ConcurrentDictionary<int, Task>();
 
-        public Lds_service_eds(string cadena, string url, int timeout, int delay)
+        public Lds_service_eds(string cadena, string url, int timeout, int delay,bool iniciarServicio)
         {
             this.cadena = cadena;
             this.url = url;
             this.timeout = timeout; 
             this.delay = delay;
-            InitializeComponent();
+            if (iniciarServicio)
+            {
+                InitializeComponent();
+            }
+            
+            /*
             LogEventos = new System.Diagnostics.EventLog();
 
 
@@ -47,6 +53,7 @@ namespace LDS_SERVICE_EDS
 
             LogEventos.Source = "LdsServiceEds";
             LogEventos.Log = "Application";
+            */
 
         }
 
@@ -71,14 +78,14 @@ namespace LDS_SERVICE_EDS
                         {
                             string responseBody = await response.Content.ReadAsStringAsync();
                             var ventas = JsonConvert.DeserializeObject<List<VentaDto>>(responseBody);
-                            Logger.EscribirLog("Respuesta exitosa:");
-                            Logger.EscribirLog($"Código: {response.StatusCode}");
+                             Logger.EscribirLog("Respuesta exitosa:");
+                             Logger.EscribirLog($"Código: {response.StatusCode}");
                             return ventas;
                         }
                         else
                         {
-                            Logger.EscribirLog($"Error en la solicitud de ventas. Código: {response.StatusCode}");
-                            Logger.EscribirLog($"Detalle: {await response.Content.ReadAsStringAsync()}");
+                             Logger.EscribirLog($"Error en la solicitud de ventas. Código: {response.StatusCode}");
+                             Logger.EscribirLog($"Detalle: {await response.Content.ReadAsStringAsync()}");
                             return null;
                         }
                     }
@@ -86,17 +93,131 @@ namespace LDS_SERVICE_EDS
             }
             catch (Exception ex)
             {
-                Logger.EscribirLog($"Ocurrió un error al obtener las ventas: {ex.Message}");
+                 Logger.EscribirLog($"Ocurrió un error al obtener las ventas: {ex.Message}");
                 return null;
             }
             finally
             {
                 posicionesEnProceso.TryRemove(numPosicion, out _);
-                Logger.EscribirLog($"Hilo liberado para posición {numPosicion}.");
+                 Logger.EscribirLog($"Hilo liberado para posición {numPosicion}.");
             }
         }
 
 
+        /*Obtener totales*/
+        public async Task<List<TotalesDto>> ObtenerTotalesAsync(string url, int numPosicion, int timeout)
+        {
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    // Configurar el timeout
+                    httpClient.Timeout = TimeSpan.FromSeconds(timeout);
+
+                    // Construir la URL completa con el parámetro `NumPosicion`
+                    string fullUrl = $"{url}Totales?NumPosicion={numPosicion}";
+
+                    // Realizar la petición GET
+                    using (HttpResponseMessage response = await httpClient.GetAsync(fullUrl))
+                    {
+                        // Verificar la respuesta
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string responseBody = await response.Content.ReadAsStringAsync();
+                            var totales = JsonConvert.DeserializeObject<List<TotalesDto>>(responseBody);
+                             Logger.EscribirLog("Respuesta exitosa:");
+                             Logger.EscribirLog($"Código: {response.StatusCode}");
+                            return totales;
+                        }
+                        else
+                        {
+                             Logger.EscribirLog($"Error en la solicitud de totales. Código: {response.StatusCode}");
+                             Logger.EscribirLog($"Detalle: {await response.Content.ReadAsStringAsync()}");
+                            return null;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                 Logger.EscribirLog($"Ocurrió un error al obtener los totales: {ex.Message}");
+                return null;
+            }
+        }
+
+        /*Filtrar totales por posicion y manguera*/
+        public async Task<TotalesDto> ObtenerTotalesPorMangueraAsync(string url, int numPosicion, int timeout, int manguera)
+        {
+            try
+            {
+
+                var totales = await ObtenerTotalesAsync(url, numPosicion, timeout);
+                if (totales != null)
+                {
+                    var total = totales.Where(x => x.IdPosicion == numPosicion && x.NumeroManguera == manguera).First();
+                    // 2. Crear el diccionario con la clave "Posiciones" y el valor de la cadena
+                    var pares = new Dictionary<object, object>
+                    {
+                        { "TotalDinero", total.TotalDinero },
+                        { "TotalVolumen", total.TotalVolumen }
+                    };
+                    Files.generarIni("Totales", "TotalesDisponibles", pares);
+                    return total;
+                }
+                else
+                {
+                     Logger.EscribirLog($"No se tuvo informacion de totales");
+
+                    return null;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                 Logger.EscribirLog($"Ocurrió un error al obtener los totales: {ex.Message}");
+                return null;
+            }
+        }
+
+
+        /*Obtener precios*/
+        public async Task<List<PrecioGasolinaDto>> ObtenerPreciosAsync(string url, int timeout)
+        {
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    // Configurar el timeout
+                    httpClient.Timeout = TimeSpan.FromSeconds(timeout);
+
+                    // Realizar la petición GET
+                    using (HttpResponseMessage response = await httpClient.GetAsync(url + "Precios"))
+                    {
+                        // Verificar la respuesta
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string responseBody = await response.Content.ReadAsStringAsync();
+                            var precios = JsonConvert.DeserializeObject<List<PrecioGasolinaDto>>(responseBody);
+                             Logger.EscribirLog("Respuesta exitosa:");
+                             Logger.EscribirLog($"Código: {response.StatusCode}");
+                            return precios;
+                        }
+                        else
+                        {
+                             Logger.EscribirLog($"Error en la solicitud de precios. Código: {response.StatusCode}");
+                             Logger.EscribirLog($"Detalle: {await response.Content.ReadAsStringAsync()}");
+                            return null;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                 Logger.EscribirLog($"Ocurrió un error al obtener los precios: {ex.Message}");
+                return null;
+            }
+        }
 
         public async Task<EstadoDto> ObtenerEstadoAsync(string url, int timeoutMs, int numPosicion)
         {
@@ -124,26 +245,132 @@ namespace LDS_SERVICE_EDS
                         }
                         else
                         {
-                            Logger.EscribirLog($"Error en la solicitud de estado. Código: {response.StatusCode}");
-                            Logger.EscribirLog($"Detalle: {await response.Content.ReadAsStringAsync()}");
+                             Logger.EscribirLog($"Error en la solicitud de estado. Código: {response.StatusCode}");
+                             Logger.EscribirLog($"Detalle: {await response.Content.ReadAsStringAsync()}");
                             return null;
                         }
                     }
                     catch (TaskCanceledException tcex)
                     {
                         // Puede significar que se cumplió el timeout o se canceló manualmente
-                        Logger.EscribirLog($"Solicitud cancelada o timeout: {tcex.Message}");
+                         Logger.EscribirLog($"Solicitud cancelada o timeout: {tcex.Message}");
                         return null;
                     }
                     catch (Exception ex)
                     {
-                        Logger.EscribirLog($"Ocurrió un error al obtener el estado: {ex.Message}");
+                         Logger.EscribirLog($"Ocurrió un error al obtener el estado: {ex.Message}");
                         return null;
                     }
                 }
             }
         }
 
+        /*Obtener Mapeo*/
+        public async Task<List<PosicionesMapeoDto>> RealizarMapeoAsync(string url, int timeout)
+        {
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    // Configurar el timeout
+                    httpClient.Timeout = TimeSpan.FromSeconds(timeout);
+                    // Realizar la petición GET
+                    using (HttpResponseMessage response = await httpClient.GetAsync(url + "Mapeo"))
+                    {
+                        // Verificar la respuesta
+                        if (response.IsSuccessStatusCode)
+                        {
+                            string responseBody = await response.Content.ReadAsStringAsync();
+                            var mapeos = JsonConvert.DeserializeObject<List<PosicionesMapeoDto>>(responseBody);
+                             Logger.EscribirLog("Respuesta exitosa:");
+                             Logger.EscribirLog($"Código: {response.StatusCode}");
+                            return mapeos;
+                        }
+                        else
+                        {
+                             Logger.EscribirLog($"Error en la solicitud de mapeo. Código: {response.StatusCode}");
+                             Logger.EscribirLog($"Detalle: {await response.Content.ReadAsStringAsync()}");
+                            return null;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                 Logger.EscribirLog($"Ocurrió un error al realizar el mapeo: {ex.Message}");
+                return null;
+            }
+        }
+
+        /*Realizar preset*/
+
+        public async Task<string> RealizarPresetAsync(string url, int timeout, PresetDto presetDto)
+        {
+            try
+            {
+                string result = null;
+                using (var httpClient = new HttpClient())
+                {
+                    ;
+                    // Configurar el timeout
+                    httpClient.Timeout = TimeSpan.FromSeconds(timeout);
+
+                    // Serializar el DTO a JSON
+                    var json = JsonConvert.SerializeObject(presetDto);
+                    string responseBody;
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // Realizar la petición POST
+                    using (HttpResponseMessage response = await httpClient.PostAsync(url + "Preset", content))
+                    {
+                        // Verificar la respuesta
+                        if (response.IsSuccessStatusCode)
+                        {
+                            responseBody = await response.Content.ReadAsStringAsync();
+                             Logger.EscribirLog("Respuesta exitosa:");
+                             Logger.EscribirLog($"Código: {response.StatusCode}");
+                             Logger.EscribirLog($"Mensaje: {responseBody}");
+                            // Extraer el mensaje desde el JSON de respuesta
+
+                            result = responseBody;
+
+                        }
+                        else
+                        {
+                            responseBody = await response.Content.ReadAsStringAsync();
+                             Logger.EscribirLog($"Error en la solicitud. Código: {response.StatusCode}");
+                             Logger.EscribirLog($"Detalle: {responseBody}");
+                            result = null;
+                        }
+
+
+                        var jsonResponse = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseBody);
+                        if (jsonResponse != null && jsonResponse.ContainsKey("Message"))
+                        {
+                            string extractedMessage = jsonResponse["Message"];
+                             Logger.EscribirLog($"Mensaje Extraído: {extractedMessage}");
+
+                            // Escribir el mensaje extraído en el archivo INI
+                            var pares = new Dictionary<object, object>
+                                {
+                                    { "Respuesta", extractedMessage }
+                                };
+                            Files.generarIni("Preset", "Preset", pares);
+
+                            result = extractedMessage;
+                        }
+                    }
+                }
+
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                 Logger.EscribirLog($"Ocurrió un error: {ex.Message}");
+                return null;
+            }
+        }
 
 
         /*Realizar peticiones repetitivas*/
@@ -244,9 +471,76 @@ namespace LDS_SERVICE_EDS
             }
         }
 
+        /*PRIMERA PARTE INTEGRADOR*/
+        /*Solicitar posiciones disponibles
+         debe guardar esa informacion para la interfaz observar si se guarda en un archivo o 
+        directamente en base de datos
+        */
+
+        public async Task<List<int>> obtenerPosicionesDisponibles(string url, int timeout)
+        {
+            EstadoDto estado;
+            List<PosicionesMapeoDto> posicionesMapeadas = await RealizarMapeoAsync(url, timeout);
+            List<int> posicionesDisponibles = new List<int>();
+            // Para extraer únicamente los valores de "Posicion" SIN repeticiones:
+            var posicionesUnicas = posicionesMapeadas
+                .Select(x => x.Posicion)
+                .Distinct()
+                .OrderBy(pos => pos)
+                .ToList();
+
+            // Ahora "posicionesUnicas" es una lista de int que contiene solo los números de posición diferentes.
+            foreach (var posicion in posicionesUnicas)
+            {
+                 Logger.EscribirLog($"Posición única: {posicion}");
+                estado = await ObtenerEstadoAsync(url, timeout, posicion);
+
+                if (estado != null)
+                {
+                     Logger.EscribirLog($"Estado paraposicion, : {posicion}, el estado es: {estado.Estado} ");
+                    if (estado.Estado.Equals("espera", StringComparison.OrdinalIgnoreCase))
+                    {
+                        posicionesDisponibles.Add(posicion);
+                    }
+                }
+
+            }
+            // 1. Unir las posiciones en una sola cadena separada por comas
+            string posicionesComoCadena = string.Join(",", posicionesDisponibles);
+
+            // 2. Crear el diccionario con la clave "Posiciones" y el valor de la cadena
+            var pares = new Dictionary<object, object>
+                {
+                    { "Posiciones", posicionesComoCadena }
+                };
+            Files.generarIni("Posiciones", "PosicionesDisponibles", pares);
+            return posicionesDisponibles;
+        }
+
+
+        /*Obtener tipos de combustible de posicion
+         
+         debe guardar esa informacion para la interfaz*/
+        public async Task<List<string>> obtenerCombustiblePorPosicion(string url, int timeout, int posicion)
+        {
+            List<PosicionesMapeoDto> posicionesMapeadas = await RealizarMapeoAsync(url, timeout);
+            List<string> posicionesMapeadasString = posicionesMapeadas
+            .Where(x => x.Posicion == posicion)
+            .Select(x => x.NombreProducto)
+            .ToList(); string posicionesComoCadena = string.Join(",", posicionesMapeadasString);
+            var pares = new Dictionary<object, object>
+                {
+                    { "TiposCombustible", posicionesComoCadena }
+                };
+            Files.generarIni("CombustiblePorPosicion", "PosicionesDisponibles", pares);
+            return posicionesMapeadasString;
+        }
+
+
+
         /*Obtener datos de base de datos*/
 
-        private async Task<List<LDS_VENTAS_EDS>> obtenerDatosPreset()
+        public async Task<List<LDS_VENTAS_EDS>> obtenerDatosPreset()
         {
             List<LDS_VENTAS_EDS> listaDatos = new List<LDS_VENTAS_EDS>();
 
@@ -308,7 +602,7 @@ namespace LDS_SERVICE_EDS
         }
 
         /*Cambiar valor a procesado  cuando un hilo empieza la operacion*/
-        private async Task ActualizarProcesadoAsync(int idPosicion)
+        public async Task ActualizarProcesadoAsync(int idPosicion)
         {
             try
             {
@@ -344,7 +638,7 @@ namespace LDS_SERVICE_EDS
 
 
         /*Agregara tabla de LDS_PAGAR_EDS*/
-        private async Task AgregarTablaPagos(string gasolina, double precioVenta, double volumen, string tipoProgramacion, double importe)
+        public async Task AgregarTablaPagos(string gasolina, double precioVenta, double volumen, string tipoProgramacion, double importe)
         {
             try
             {
@@ -386,6 +680,57 @@ namespace LDS_SERVICE_EDS
 
 
 
+        /*Obtener precios por tipo de gasolina*/
+        public async Task obtenerPreciosPorTipoGasolina(string url, int timeout, string gasolina)
+        {
+            var lista = await ObtenerPreciosAsync(url, timeout);
+            if (lista != null)
+            {
+                var listaResult = lista.Where(x => x.Nombre.ToLower().Trim() == gasolina.ToLower().Trim()).Select(x => new { x.Nombre, x.Precio }).First();
+                var pares = new Dictionary<object, object>
+                {
+                    { "PrecioGasolina", listaResult.Precio }
+                };
+                Files.generarIni("Gasolina", "Gasolina", pares);
+
+            }
+            else
+            {
+                Logger.EscribirLog("No se obtuvo resultado de la gasolina repisada");
+            }
+
+     
+
+        }
+
+
+
+        /*Obtener Manguera*/
+        public async Task<int> obtenerManguera(string url, int timeout, int posicion, string gasolina)
+        {
+
+            try
+            {
+                List<PosicionesMapeoDto> posicionesMapeadas = await RealizarMapeoAsync(url, timeout);
+
+                int posicionesUnicas = posicionesMapeadas
+                               .Where(x => x.Posicion == posicion && x.NombreProducto.ToLower().Trim() == gasolina.ToLower().Trim())
+                               .Select(x => x.Manguera)
+                               .First();
+                var pares = new Dictionary<object, object>
+                {
+                    { "Manguera", posicionesUnicas }
+                };
+                Files.generarIni("Manguera", "MangueraPorTipoGasolina", pares);
+
+                return posicionesUnicas;
+            }
+            catch (Exception ex)
+            {
+                Logger.EscribirLog("No se puede obtener la manguera por tipo gasolina: "+ ex.Message);
+                return 0;
+            }
+        }
 
 
         protected override void OnStart(string[] args)
@@ -404,8 +749,8 @@ namespace LDS_SERVICE_EDS
 
         private async void ProcesoConteo_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            LogEventos.WriteEntry($"ProcesoConteo_Elapsed se ejecutó a las {DateTime.Now}",
-                       EventLogEntryType.Information);
+           /* LogEventos.WriteEntry($"ProcesoConteo_Elapsed se ejecutó a las {DateTime.Now}",
+                       EventLogEntryType.Information);*/
             try
             {
                 Logger.EscribirLog("Iniciando ProcesoConteo_Elapsed...");

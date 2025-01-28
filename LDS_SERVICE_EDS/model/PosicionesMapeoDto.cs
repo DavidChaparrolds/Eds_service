@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EDS.model
 {
-    internal class PosicionesMapeoDto
+    public class PosicionesMapeoDto
     {
         public int Dispensador { get; set; }
         public int Posicion { get; set; }

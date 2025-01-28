@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EDS.model
 {
-    internal class TotalesDto
+    public class TotalesDto
     {
         public int IdPosicion { get; set; }
 
