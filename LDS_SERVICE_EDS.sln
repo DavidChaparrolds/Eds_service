@@ -5,6 +5,8 @@ VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LDS_SERVICE_EDS", "LDS_SERVICE_EDS\LDS_SERVICE_EDS.csproj", "{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "InstaladorServicioEds", "InstaladorServicioEds\InstaladorServicioEds.vdproj", "{4C69F057-E8B4-49C4-9E14-74AACC756258}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,8 @@ Global
 		{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7AD89F36-9246-42CE-AC6F-1BECA2EEE521}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C69F057-E8B4-49C4-9E14-74AACC756258}.Debug|Any CPU.ActiveCfg = Debug
+		{4C69F057-E8B4-49C4-9E14-74AACC756258}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -168,6 +168,7 @@ namespace LDS_SERVICE_EDS
             }
             catch (Exception ex) {
                 Logger.EscribirLog($"Ocurrio un error al iniciar la aplicacion: {ex.Message}");
+                Logger.EscribirLog($"Detalle del error: {ex.StackTrace}");
 
             }
             
