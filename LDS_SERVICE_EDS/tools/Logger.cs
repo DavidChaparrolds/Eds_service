@@ -16,7 +16,7 @@ namespace EDS.tools
         {
             if (!Directory.Exists(Logger.logDirectory))
                 Directory.CreateDirectory(Logger.logDirectory);
-            string str = Path.Combine(Logger.logDirectory, "EDS_SERVCE.txt");
+            string str = Path.Combine(Logger.logDirectory, "EDS_SERVICE.txt");
             long num = 0;
             lock (str)
             {

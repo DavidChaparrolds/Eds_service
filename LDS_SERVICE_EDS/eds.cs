@@ -69,14 +69,18 @@ namespace LDS_SERVICE_EDS
 
                     // Construir la URL completa con el parámetro `NumPosicion`
                     string fullUrl = $"{url}Venta?NumPosicion={numPosicion}";
+                    Logger.EscribirLog("Ingresa a consultar ventas: "+fullUrl + "***************");
 
                     // Realizar la petición GET
                     using (HttpResponseMessage response = await httpClient.GetAsync(fullUrl))
                     {
+
                         // Verificar la respuesta
                         if (response.IsSuccessStatusCode)
                         {
                             string responseBody = await response.Content.ReadAsStringAsync();
+                            // Log del cuerpo completo de la respuesta
+                            Logger.EscribirLog($"Cuerpo de la respuesta para posición {numPosicion}: {responseBody}");
                             var ventas = JsonConvert.DeserializeObject<List<VentaDto>>(responseBody);
                              Logger.EscribirLog("Respuesta exitosa:");
                              Logger.EscribirLog($"Código: {response.StatusCode}");
@@ -96,11 +100,7 @@ namespace LDS_SERVICE_EDS
                  Logger.EscribirLog($"Ocurrió un error al obtener las ventas: {ex.Message}");
                 return null;
             }
-            finally
-            {
-                posicionesEnProceso.TryRemove(numPosicion, out _);
-                 Logger.EscribirLog($"Hilo liberado para posición {numPosicion}.");
-            }
+            
         }
 
 
@@ -241,6 +241,7 @@ namespace LDS_SERVICE_EDS
                         if (response.IsSuccessStatusCode)
                         {
                             string responseBody = await response.Content.ReadAsStringAsync();
+                            Logger.EscribirLog($"Código: {response.StatusCode}");
                             return JsonConvert.DeserializeObject<EstadoDto>(responseBody);
                         }
                         else
@@ -378,7 +379,9 @@ namespace LDS_SERVICE_EDS
         {
             try
             {
-                int numeroIntentos = 0;
+                int numeroIntentosNull = 0;
+                int numeroIntentosOtroEstado = 0;
+                bool pasoSurtiendo = false;
                 while (true)
                 {
 
@@ -390,14 +393,47 @@ namespace LDS_SERVICE_EDS
                     {
                        Logger.EscribirLog($"Estado recibido: {estado.Estado}, Para posicion {numPosicion}");
 
-                        // Si el estado es 'reporte' o 'espera', finalizar el bucle
-                        if (estado.Estado.Equals("reporte", StringComparison.OrdinalIgnoreCase) ||
-                            estado.Estado.Equals("espera", StringComparison.OrdinalIgnoreCase))
+                        // Si el estado es 'Surtiendo', esperar hasta que cambie a 'Reporte' o 'Espera'
+                        while (estado.Estado.Equals("Surtiendo", StringComparison.OrdinalIgnoreCase))
                         {
+                            pasoSurtiendo = true;
+                            Logger.EscribirLog($"Posición {numPosicion} en estado 'Surtiendo'. Esperando cambio de estado...");
+                            await Task.Delay(delay);
+                            estado = await ObtenerEstadoAsync(url, timeout, numPosicion);
 
-                            List<VentaDto> ventas = await ObtenerVentasAsync(url, numPosicion, timeout);
-                           Logger.EscribirLog("************************** Obtener Venta ***********************************");
+                            // Si por algún error el estado se vuelve null, terminar el proceso
+                            if (estado == null)
+                            {
+                                Logger.EscribirLog($"No se pudo obtener el estado de la posición {numPosicion}. Terminando...");
+                                break;
+                            }
+                        }
+                        // Si el estado es 'reporte' o 'espera', finalizar el bucle
+                        if (pasoSurtiendo && (estado.Estado.Equals("reporte", StringComparison.OrdinalIgnoreCase) || estado.Estado.Equals("espera", StringComparison.OrdinalIgnoreCase)))
+                        {
+                           // await Task.Delay(2000);
+                            // List<VentaDto> ventas = await ObtenerVentasAsync(url, numPosicion, timeout);
+                            List<VentaDto> ventas = null;
+                            Logger.EscribirLog("************************** Obtener Venta ***********************************");
+                            int intentosVentas = 0;
+                            // Intentar obtener ventas hasta 5 veces
+                            while (intentosVentas < 5)
+                            {
+                                var inicioIntento = DateTime.UtcNow;
 
+                               await Task.Delay(delay);//cambiando este task.delay
+                                ventas = await ObtenerVentasAsync(url, numPosicion, timeout);
+
+                                if (ventas != null && ventas.Count > 0)
+                                {
+                                    Logger.EscribirLog("Ventas obtenidas correctamente.");
+                                    break;
+                                }
+
+                                Logger.EscribirLog($"Intento {intentosVentas + 1}/5: No se obtuvieron ventas. Reintentando en {delay/1000} segundos...");
+                                intentosVentas++;
+                                
+                            }
                             if (ventas != null && ventas.Count > 0)
                             {
                                 foreach (var venta in ventas)
@@ -419,29 +455,59 @@ namespace LDS_SERVICE_EDS
                             }
                             else
                             {
-                                Logger.EscribirLog("No se obtuvieron ventas o la lista está vacía.");
+                                Logger.EscribirLog("No se obtuvieron ventas o la lista está vacía, alcanzo el limite de intentos");
 
                             }
 
                            Logger.EscribirLog("Estado final alcanzado. Terminando consulta periódica.");
+                           break;
+
+                        }else if (estado.Estado.Equals("VentaZero", StringComparison.OrdinalIgnoreCase))
+                        {
+                            Logger.EscribirLog($"Termina por venta zero");
                             break;
                         }
+                        else{
+                            if (estado.Estado.Equals("espera", StringComparison.OrdinalIgnoreCase))
+                            {
+                                Logger.EscribirLog($"Entro a validar intentos: El estado es {estado.Estado}, Para posicion {numPosicion}");
+                                if (numeroIntentosOtroEstado > 10)
+                                {
+                                    Logger.EscribirLog("Terminando el programa excedio el numero de intentos");
+                                    break;
+                                }
+                                numeroIntentosOtroEstado++;
+                            }
+
+                        }
+                       
                     }
                     else
                     {
                        Logger.EscribirLog("No se pudo obtener el estado. Intentando nuevamente...");
-                        if (numeroIntentos > 5)
+                        if (numeroIntentosNull > 5)
                         {
                            Logger.EscribirLog("Terminando el programa excedio el numero de intentos");
                             break;
                         }
-                        numeroIntentos++;
+                        numeroIntentosNull++;
                     }
                 }
             }
             catch (Exception ex)
             {
                Logger.EscribirLog($"Ocurrió un error durante la consulta periódica: {ex.Message}");
+            }
+            finally
+            { 
+                if (posicionesEnProceso.TryRemove(numPosicion, out _))
+                {
+                    Logger.EscribirLog($"Hilo liberado correctamente para posición {numPosicion}.");
+                }
+                else
+                {
+                    Logger.EscribirLog($"No se encontró el hilo para posición {numPosicion} en posicionesEnProceso.");
+                }
             }
         }
 
@@ -559,7 +625,9 @@ namespace LDS_SERVICE_EDS
 	                                NumeroManguera,
 	                                PrecioVenta,
 	                                TotalDineroInicial,
-	                                TotalVolumenInicial
+	                                TotalVolumenInicial,
+                                    Gasolina,
+                                    TipoProgramacion
 	                                 FROM LDS_VENTAS_EDS
                              WHERE Procesado = 0"; // Ajusta la condición que necesites
 
@@ -579,7 +647,10 @@ namespace LDS_SERVICE_EDS
                                     NumeroManguera = reader.GetInt32(reader.GetOrdinal("NumeroManguera")),
                                     PrecioVenta = reader.GetDecimal(reader.GetOrdinal("PrecioVenta")),
                                     TotalDineroInicial = reader.GetDecimal(reader.GetOrdinal("TotalDineroInicial")),
-                                    TotalVolumenInicial = reader.GetDecimal(reader.GetOrdinal("TotalVolumenInicial"))
+                                    TotalVolumenInicial = reader.GetDecimal(reader.GetOrdinal("TotalVolumenInicial")),
+                                    Gasolina = reader.GetString(reader.GetOrdinal("Gasolina")),
+                                    TipoProgramacion = reader.GetString(reader.GetOrdinal("TipoProgramacion")) 
+
                                 };
 
                                 // Agregar a la lista
@@ -774,8 +845,9 @@ namespace LDS_SERVICE_EDS
                             NumeroManguera = venta.NumeroManguera,
                             IdPosicion = venta.IdPosicion,
                             TotalDineroInicial = (double)venta.TotalDineroInicial,
-                            TotalVolumenInicial = (double)venta.TotalVolumenInicial
-
+                            TotalVolumenInicial = (double)venta.TotalVolumenInicial,
+                            Gasolina = venta.Gasolina,
+                            TipoProgramacion = venta.TipoProgramacion
                         };
 
 
