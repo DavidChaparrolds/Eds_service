@@ -37,5 +37,15 @@ namespace LDS_SERVICE_EDS.model
         [Key]
         [Column(Order = 6)]
         public bool Facturado { get; set; }
+
+        [Key]
+        [Column(Order = 7)]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int IdPosicion { get; set; }
+
+        [Key]
+        [Column(Order = 8)]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int NumeroManguera { get; set; }
     }
 }

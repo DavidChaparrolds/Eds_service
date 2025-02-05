@@ -386,7 +386,8 @@ namespace LDS_SERVICE_EDS
                 {
 
                     await Task.Delay(delay);
-                    // Llamar al método ObtenerEstadoAsync
+                    // Llamar al método ObtenerEstadoAsync si es autorizado siga preguntando el solo sale del estado de lo contrario
+                    // si es ventazero sale de una y si es otro estado diferente pruebe diez veces y termine
                     var estado = await ObtenerEstadoAsync(url, timeout, numPosicion);
 
                     if (estado != null)
@@ -450,7 +451,8 @@ namespace LDS_SERVICE_EDS
 
                                Logger.EscribirLog($"Idventa: {ventaResultado.IdVenta}, FechaVenta {ventaResultado.FechaVenta}, Dinero {ventaResultado.Dinero}, Volumen {ventaResultado.Volumen}, TotalDineroInicial {ventaResultado.TotalDineroInicial}, TotalDineroFinal {ventaResultado.TotalDineroFinal}, TotalVolumenInicial  {ventaResultado.TotalVolumenInicial}, TotalVolumenFinal {ventaResultado.TotalVolumenFinal}, IdPosicion {ventaResultado.IdPosicion},  NumeroManguera {ventaResultado.NumeroManguera}, PrecioVenta {ventaResultado.PrecioVenta}, IdProgramacion {ventaResultado.IdProgramacion}, IdProducto {ventaResultado.IdProducto}");
 
-                                await AgregarTablaPagos(resultadoVentaDto.Gasolina, ventaResultado.PrecioVenta, ventaResultado.Volumen, resultadoVentaDto.TipoProgramacion, ventaResultado.Dinero);
+                                /*Manguera y posicion*/
+                                await AgregarTablaPagos(resultadoVentaDto.Gasolina, ventaResultado.PrecioVenta, ventaResultado.Volumen, resultadoVentaDto.TipoProgramacion, ventaResultado.Dinero, ventaResultado.IdPosicion, ventaResultado.NumeroManguera);
 
                             }
                             else
@@ -468,7 +470,22 @@ namespace LDS_SERVICE_EDS
                             break;
                         }
                         else{
-                            if (estado.Estado.Equals("espera", StringComparison.OrdinalIgnoreCase))
+
+                            /*
+                            if(!estado.Estado.Equals("autorizado", StringComparison.OrdinalIgnoreCase)){
+                                Logger.EscribirLog($"Entro a validar intentos: El estado es {estado.Estado}, Para posicion {numPosicion}");
+                                if (numeroIntentosOtroEstado > 10)
+                                {
+                                    Logger.EscribirLog("Terminando el programa excedio el numero de intentos");
+                                    break;
+                                }
+                                numeroIntentosOtroEstado++;
+                            }*/
+                            
+                            if (estado.Estado.Equals("espera", StringComparison.OrdinalIgnoreCase) || 
+                                estado.Estado.Equals("listo", StringComparison.OrdinalIgnoreCase) || 
+                                estado.Estado.Equals("error", StringComparison.OrdinalIgnoreCase))
+                     
                             {
                                 Logger.EscribirLog($"Entro a validar intentos: El estado es {estado.Estado}, Para posicion {numPosicion}");
                                 if (numeroIntentosOtroEstado > 10)
@@ -709,16 +726,15 @@ namespace LDS_SERVICE_EDS
 
 
         /*Agregara tabla de LDS_PAGAR_EDS*/
-        public async Task AgregarTablaPagos(string gasolina, double precioVenta, double volumen, string tipoProgramacion, double importe)
+        public async Task AgregarTablaPagos(string gasolina, double precioVenta, double volumen, string tipoProgramacion, double importe, int idPosicion, int numeroManguera)
         {
             try
             {
                 using (SqlConnection conn = new SqlConnection(cadena))
                 {
                     await conn.OpenAsync();
-
-                    string query = @"INSERT INTO LDS_PAGAR_EDS (Gasolina, PrecioVenta, Volumen, TipoProgramacion, Importe, Facturado)
-                             VALUES (@Gasolina, @PrecioVenta, @Volumen, @TipoProgramacion, @Importe, 0)";
+                    string query = @"INSERT INTO LDS_PAGAR_EDS (Gasolina, PrecioVenta, Volumen, TipoProgramacion, Importe, Facturado, IdPosicion, NumeroManguera)
+                             VALUES (@Gasolina, @PrecioVenta, @Volumen, @TipoProgramacion, @Importe, 0, @IdPosicion, @NumeroManguera)";
 
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
@@ -728,6 +744,8 @@ namespace LDS_SERVICE_EDS
                         cmd.Parameters.AddWithValue("@Volumen", volumen);
                         cmd.Parameters.AddWithValue("@TipoProgramacion", tipoProgramacion);
                         cmd.Parameters.AddWithValue("@Importe", importe);
+                        cmd.Parameters.AddWithValue("@IdPosicion", idPosicion);
+                        cmd.Parameters.AddWithValue("@NumeroManguera", numeroManguera);
 
                         // Ejecutar la consulta de forma asíncrona
                         int rowsAffected = await cmd.ExecuteNonQueryAsync();
