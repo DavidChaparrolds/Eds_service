@@ -36,15 +36,15 @@ namespace LDS_SERVICE_EDS
                     string password = args[3];
 
                     // Imprimir los valores de las variables
-                    Logger.EscribirLog("DataSource: " + dataSource);
-                    Logger.EscribirLog("InitialCatalog: " + initialCatalog);
-                    Logger.EscribirLog("UserId: " + userId);
-                    Logger.EscribirLog("Password: " + password);
+                    //Logger.EscribirLog("DataSource: " + dataSource);
+                    //Logger.EscribirLog("InitialCatalog: " + initialCatalog);
+                    //Logger.EscribirLog("UserId: " + userId);
+                    //Logger.EscribirLog("Password: " + password);
                     string connectionString;
                     if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(userId))
                     {
 
-                        Logger.EscribirLog("paso para la cadena de conexion con autenticacion de windows");
+                        //Logger.EscribirLog("paso para la cadena de conexion con autenticacion de windows");
                         connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};Integrated Security=True";
                     }
                     else
@@ -54,13 +54,13 @@ namespace LDS_SERVICE_EDS
                     }
 
                     string url = args[4];
-                    Logger.EscribirLog("url : " + url);
+                    //Logger.EscribirLog("url : " + url);
                     string timeout = args[5];
-                    Logger.EscribirLog("timeout : " + timeout);
+                    //Logger.EscribirLog("timeout : " + timeout);
                     int delay = int.Parse(args[6]);
-                    Logger.EscribirLog("delay : " + delay);
+                    //Logger.EscribirLog("delay : " + delay);
                     string type = args[7];
-                    Logger.EscribirLog("type : " + type);
+                    //Logger.EscribirLog("type : " + type);
                     string posicion;
 
 
@@ -70,61 +70,61 @@ namespace LDS_SERVICE_EDS
 
                         Lds_service_eds program = new Lds_service_eds(connectionString, url, int.Parse(timeout), delay, false);
                         string option = args[8];
-                        Logger.EscribirLog("option : " + option);
+                        //Logger.EscribirLog("option : " + option);
                         if (option.ToLower() == "posiciones")
                         {
-                            Logger.EscribirLog("************************** Obtener posiciones disponibles ***********************************");
+                           // Logger.EscribirLog("************************** Obtener posiciones disponibles ***********************************");
                             await program.obtenerPosicionesDisponibles(url, int.Parse(timeout));
                         }
                         else if (option.ToLower() == "combustible")
                         {
 
-                            Logger.EscribirLog("************************** Obtener combustible por posicion ***********************************");
+                         //   Logger.EscribirLog("************************** Obtener combustible por posicion ***********************************");
                             posicion = args[9];
-                            Logger.EscribirLog($"Posicion: {posicion}");
+                           // Logger.EscribirLog($"Posicion: {posicion}");
                             await program.obtenerCombustiblePorPosicion(url, int.Parse(timeout), int.Parse(posicion));
                         }
                         else if (option.ToLower() == "totales")
                         {
 
-                            Logger.EscribirLog("************************** Obtener Totales ***********************************");
+                            //Logger.EscribirLog("************************** Obtener Totales ***********************************");
                             posicion = args[9];
-                            Logger.EscribirLog($"Posicion: {posicion}");
+                            //Logger.EscribirLog($"Posicion: {posicion}");
                             string manguera = args[10];
-                            Logger.EscribirLog($"Manguera: {manguera}");
+                            //Logger.EscribirLog($"Manguera: {manguera}");
                             await program.ObtenerTotalesPorMangueraAsync(url, int.Parse(posicion), int.Parse(timeout), int.Parse(manguera));
 
                         }
                         else if (option.ToLower() == "precios")
                         {
-                            Logger.EscribirLog("************************** Obtener precios por tipo gasolina ***********************************");
+                            //Logger.EscribirLog("************************** Obtener precios por tipo gasolina ***********************************");
                             string gasolina = args[11];
-                            Logger.EscribirLog($"Manguera: {gasolina}");
+                            //Logger.EscribirLog($"Manguera: {gasolina}");
                             await program.obtenerPreciosPorTipoGasolina(url, int.Parse(timeout), gasolina);
                         }
                         else if (option.ToLower() == "manguera")
                         {
-                            Console.WriteLine("************************** Obtener manguera por tipo gasolina ***********************************");
+                            //Console.WriteLine("************************** Obtener manguera por tipo gasolina ***********************************");
                             posicion = args[9];
-                            Logger.EscribirLog($"Posicion: {posicion}");
+                           // Logger.EscribirLog($"Posicion: {posicion}");
                             string gasolina = args[11];
-                            Logger.EscribirLog($"Gasolina: {gasolina}");
+                            //Logger.EscribirLog($"Gasolina: {gasolina}");
                             await program.obtenerManguera(url, int.Parse(timeout), int.Parse(posicion), gasolina);
                         }
                         else if (option.ToLower() == "preset")
                         {
                             /*Realizar Preset*/
-                            Logger.EscribirLog("************************** Realizar preset ***********************************");
+                            //Logger.EscribirLog("************************** Realizar preset ***********************************");
                             posicion = args[9];
-                            Logger.EscribirLog($"Posicion: {posicion}");
+                            //Logger.EscribirLog($"Posicion: {posicion}");
                             string manguera = args[10];
-                            Logger.EscribirLog($"Manguera: {manguera}");
+                            //Logger.EscribirLog($"Manguera: {manguera}");
                             double valorProgramado = double.Parse(args[12]);
-                            Logger.EscribirLog($"valor programado: {valorProgramado}");
+                            //Logger.EscribirLog($"valor programado: {valorProgramado}");
                             double precioProducto = double.Parse(args[13]);
-                            Logger.EscribirLog($"precio producto: {precioProducto}");
+                            //Logger.EscribirLog($"precio producto: {precioProducto}");
                             string TipoProgramacion = args[14];
-                            Logger.EscribirLog($"Tipo programacion: {TipoProgramacion}");
+                            //Logger.EscribirLog($"Tipo programacion: {TipoProgramacion}");
                             PresetDto presetDto = new PresetDto
                             {
                                 Manguera = int.Parse(manguera),
@@ -134,7 +134,7 @@ namespace LDS_SERVICE_EDS
                                 TipoProgramacion = TipoProgramacion
                             };
                             string result = await program.RealizarPresetAsync(url, int.Parse(timeout), presetDto);
-                            Logger.EscribirLog("El estado es: " + result);
+                            //Logger.EscribirLog("El estado es: " + result);
                         }
                     }
                    
@@ -149,10 +149,10 @@ namespace LDS_SERVICE_EDS
                     string timeout = ConfigurationManager.AppSettings["Timeout"];
                     string delay = ConfigurationManager.AppSettings["Delay"];
                     // Imprimir los valores de las variables
-                    Logger.EscribirLog("DataSource: " + dataSource);
-                    Logger.EscribirLog("InitialCatalog: " + initialCatalog);
-                    Logger.EscribirLog("UserId: " + userId);
-                    Logger.EscribirLog("Password: " + password);
+                   // Logger.EscribirLog("DataSource: " + dataSource);
+                   // Logger.EscribirLog("InitialCatalog: " + initialCatalog);
+                    //Logger.EscribirLog("UserId: " + userId);
+                    //Logger.EscribirLog("Password: " + password);
                     string connectionString = $"Data Source={dataSource};Initial Catalog={initialCatalog};User ID={userId};Password={password};encrypt=False;MultipleActiveResultSets=True";
 
 

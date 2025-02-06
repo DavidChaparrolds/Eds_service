@@ -20,8 +20,8 @@ namespace LDS_SERVICE_EDS.tools
             Console.WriteLine("ruta es: " + rutaArchivo);
             try
             {
-                Logger.EscribirLog("Se crea el .ini");
-                Console.WriteLine("Se crea un .ini");
+                //Logger.EscribirLog("Se crea el .ini");
+                //Console.WriteLine("Se crea un .ini");
                 Encoding encoding = new UTF8Encoding(false);
                 using (StreamWriter writer = new StreamWriter(rutaArchivo, false, encoding))
                 {

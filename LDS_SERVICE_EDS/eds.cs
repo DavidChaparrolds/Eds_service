@@ -69,7 +69,7 @@ namespace LDS_SERVICE_EDS
 
                     // Construir la URL completa con el parámetro `NumPosicion`
                     string fullUrl = $"{url}Venta?NumPosicion={numPosicion}";
-                    Logger.EscribirLog("Ingresa a consultar ventas: "+fullUrl + "***************");
+                    //Logger.EscribirLog("Ingresa a consultar ventas: "+fullUrl + "***************");
 
                     // Realizar la petición GET
                     using (HttpResponseMessage response = await httpClient.GetAsync(fullUrl))
@@ -80,10 +80,10 @@ namespace LDS_SERVICE_EDS
                         {
                             string responseBody = await response.Content.ReadAsStringAsync();
                             // Log del cuerpo completo de la respuesta
-                            Logger.EscribirLog($"Cuerpo de la respuesta para posición {numPosicion}: {responseBody}");
+                          //  Logger.EscribirLog($"Cuerpo de la respuesta para posición {numPosicion}: {responseBody}");
                             var ventas = JsonConvert.DeserializeObject<List<VentaDto>>(responseBody);
-                             Logger.EscribirLog("Respuesta exitosa:");
-                             Logger.EscribirLog($"Código: {response.StatusCode}");
+                            // Logger.EscribirLog("Respuesta exitosa:");
+                             //Logger.EscribirLog($"Código: {response.StatusCode}");
                             return ventas;
                         }
                         else
@@ -125,8 +125,8 @@ namespace LDS_SERVICE_EDS
                         {
                             string responseBody = await response.Content.ReadAsStringAsync();
                             var totales = JsonConvert.DeserializeObject<List<TotalesDto>>(responseBody);
-                             Logger.EscribirLog("Respuesta exitosa:");
-                             Logger.EscribirLog($"Código: {response.StatusCode}");
+                             //Logger.EscribirLog("Respuesta exitosa:");
+                             //Logger.EscribirLog($"Código: {response.StatusCode}");
                             return totales;
                         }
                         else
@@ -199,8 +199,8 @@ namespace LDS_SERVICE_EDS
                         {
                             string responseBody = await response.Content.ReadAsStringAsync();
                             var precios = JsonConvert.DeserializeObject<List<PrecioGasolinaDto>>(responseBody);
-                             Logger.EscribirLog("Respuesta exitosa:");
-                             Logger.EscribirLog($"Código: {response.StatusCode}");
+                             //Logger.EscribirLog("Respuesta exitosa:");
+                             //Logger.EscribirLog($"Código: {response.StatusCode}");
                             return precios;
                         }
                         else
@@ -241,7 +241,7 @@ namespace LDS_SERVICE_EDS
                         if (response.IsSuccessStatusCode)
                         {
                             string responseBody = await response.Content.ReadAsStringAsync();
-                            Logger.EscribirLog($"Código: {response.StatusCode}");
+                            //Logger.EscribirLog($"Código: {response.StatusCode}");
                             return JsonConvert.DeserializeObject<EstadoDto>(responseBody);
                         }
                         else
@@ -283,8 +283,8 @@ namespace LDS_SERVICE_EDS
                         {
                             string responseBody = await response.Content.ReadAsStringAsync();
                             var mapeos = JsonConvert.DeserializeObject<List<PosicionesMapeoDto>>(responseBody);
-                             Logger.EscribirLog("Respuesta exitosa:");
-                             Logger.EscribirLog($"Código: {response.StatusCode}");
+                            // Logger.EscribirLog("Respuesta exitosa:");
+                             //Logger.EscribirLog($"Código: {response.StatusCode}");
                             return mapeos;
                         }
                         else
@@ -328,9 +328,9 @@ namespace LDS_SERVICE_EDS
                         if (response.IsSuccessStatusCode)
                         {
                             responseBody = await response.Content.ReadAsStringAsync();
-                             Logger.EscribirLog("Respuesta exitosa:");
-                             Logger.EscribirLog($"Código: {response.StatusCode}");
-                             Logger.EscribirLog($"Mensaje: {responseBody}");
+                             //Logger.EscribirLog("Respuesta exitosa:");
+                             //Logger.EscribirLog($"Código: {response.StatusCode}");
+                             //Logger.EscribirLog($"Mensaje: {responseBody}");
                             // Extraer el mensaje desde el JSON de respuesta
 
                             result = responseBody;
@@ -349,7 +349,7 @@ namespace LDS_SERVICE_EDS
                         if (jsonResponse != null && jsonResponse.ContainsKey("Message"))
                         {
                             string extractedMessage = jsonResponse["Message"];
-                             Logger.EscribirLog($"Mensaje Extraído: {extractedMessage}");
+                           //  Logger.EscribirLog($"Mensaje Extraído: {extractedMessage}");
 
                             // Escribir el mensaje extraído en el archivo INI
                             var pares = new Dictionary<object, object>
@@ -392,13 +392,13 @@ namespace LDS_SERVICE_EDS
 
                     if (estado != null)
                     {
-                       Logger.EscribirLog($"Estado recibido: {estado.Estado}, Para posicion {numPosicion}");
+                      // Logger.EscribirLog($"Estado recibido: {estado.Estado}, Para posicion {numPosicion}");
 
                         // Si el estado es 'Surtiendo', esperar hasta que cambie a 'Reporte' o 'Espera'
                         while (estado.Estado.Equals("Surtiendo", StringComparison.OrdinalIgnoreCase))
                         {
                             pasoSurtiendo = true;
-                            Logger.EscribirLog($"Posición {numPosicion} en estado 'Surtiendo'. Esperando cambio de estado...");
+                           // Logger.EscribirLog($"Posición {numPosicion} en estado 'Surtiendo'. Esperando cambio de estado...");
                             await Task.Delay(delay);
                             estado = await ObtenerEstadoAsync(url, timeout, numPosicion);
 
@@ -415,7 +415,7 @@ namespace LDS_SERVICE_EDS
                            // await Task.Delay(2000);
                             // List<VentaDto> ventas = await ObtenerVentasAsync(url, numPosicion, timeout);
                             List<VentaDto> ventas = null;
-                            Logger.EscribirLog("************************** Obtener Venta ***********************************");
+                           // Logger.EscribirLog("************************** Obtener Venta ***********************************");
                             int intentosVentas = 0;
                             // Intentar obtener ventas hasta 5 veces
                             while (intentosVentas < 5)
@@ -427,7 +427,7 @@ namespace LDS_SERVICE_EDS
 
                                 if (ventas != null && ventas.Count > 0)
                                 {
-                                    Logger.EscribirLog("Ventas obtenidas correctamente.");
+                                  //  Logger.EscribirLog("Ventas obtenidas correctamente.");
                                     break;
                                 }
 
@@ -439,7 +439,7 @@ namespace LDS_SERVICE_EDS
                             {
                                 foreach (var venta in ventas)
                                 {
-                                   Logger.EscribirLog($"Idventa: {venta.IdVenta}, FechaVenta {venta.FechaVenta}, Dinero {venta.Dinero}, Volumen {venta.Volumen}, TotalDineroInicial {venta.TotalDineroInicial}, TotalDineroFinal {venta.TotalDineroFinal}, TotalVolumenInicial  {venta.TotalVolumenInicial}, TotalVolumenFinal {venta.TotalVolumenFinal}, IdPosicion {venta.IdPosicion},  NumeroManguera {venta.NumeroManguera}, PrecioVenta {venta.PrecioVenta}, IdProgramacion {venta.IdProgramacion}, IdProducto {venta.IdProducto}");
+                                   //Logger.EscribirLog($"Idventa: {venta.IdVenta}, FechaVenta {venta.FechaVenta}, Dinero {venta.Dinero}, Volumen {venta.Volumen}, TotalDineroInicial {venta.TotalDineroInicial}, TotalDineroFinal {venta.TotalDineroFinal}, TotalVolumenInicial  {venta.TotalVolumenInicial}, TotalVolumenFinal {venta.TotalVolumenFinal}, IdPosicion {venta.IdPosicion},  NumeroManguera {venta.NumeroManguera}, PrecioVenta {venta.PrecioVenta}, IdProgramacion {venta.IdProgramacion}, IdProducto {venta.IdProducto}");
                                 }
 
                                 VentaDto ventaResultado = ventas.Where(x =>
@@ -449,7 +449,7 @@ namespace LDS_SERVICE_EDS
                                 x.TotalDineroInicial == resultadoVentaDto.TotalDineroInicial &&
                                 x.TotalVolumenInicial == resultadoVentaDto.TotalVolumenInicial).First();
 
-                               Logger.EscribirLog($"Idventa: {ventaResultado.IdVenta}, FechaVenta {ventaResultado.FechaVenta}, Dinero {ventaResultado.Dinero}, Volumen {ventaResultado.Volumen}, TotalDineroInicial {ventaResultado.TotalDineroInicial}, TotalDineroFinal {ventaResultado.TotalDineroFinal}, TotalVolumenInicial  {ventaResultado.TotalVolumenInicial}, TotalVolumenFinal {ventaResultado.TotalVolumenFinal}, IdPosicion {ventaResultado.IdPosicion},  NumeroManguera {ventaResultado.NumeroManguera}, PrecioVenta {ventaResultado.PrecioVenta}, IdProgramacion {ventaResultado.IdProgramacion}, IdProducto {ventaResultado.IdProducto}");
+                             //  Logger.EscribirLog($"Idventa: {ventaResultado.IdVenta}, FechaVenta {ventaResultado.FechaVenta}, Dinero {ventaResultado.Dinero}, Volumen {ventaResultado.Volumen}, TotalDineroInicial {ventaResultado.TotalDineroInicial}, TotalDineroFinal {ventaResultado.TotalDineroFinal}, TotalVolumenInicial  {ventaResultado.TotalVolumenInicial}, TotalVolumenFinal {ventaResultado.TotalVolumenFinal}, IdPosicion {ventaResultado.IdPosicion},  NumeroManguera {ventaResultado.NumeroManguera}, PrecioVenta {ventaResultado.PrecioVenta}, IdProgramacion {ventaResultado.IdProgramacion}, IdProducto {ventaResultado.IdProducto}");
 
                                 /*Manguera y posicion*/
                                 await AgregarTablaPagos(resultadoVentaDto.Gasolina, ventaResultado.PrecioVenta, ventaResultado.Volumen, resultadoVentaDto.TipoProgramacion, ventaResultado.Dinero, ventaResultado.IdPosicion, ventaResultado.NumeroManguera);
@@ -461,7 +461,7 @@ namespace LDS_SERVICE_EDS
 
                             }
 
-                           Logger.EscribirLog("Estado final alcanzado. Terminando consulta periódica.");
+                           //Logger.EscribirLog("Estado final alcanzado. Terminando consulta periódica.");
                            break;
 
                         }else if (estado.Estado.Equals("VentaZero", StringComparison.OrdinalIgnoreCase))
@@ -519,7 +519,7 @@ namespace LDS_SERVICE_EDS
             { 
                 if (posicionesEnProceso.TryRemove(numPosicion, out _))
                 {
-                    Logger.EscribirLog($"Hilo liberado correctamente para posición {numPosicion}.");
+                    //Logger.EscribirLog($"Hilo liberado correctamente para posición {numPosicion}.");
                 }
                 else
                 {
@@ -541,7 +541,7 @@ namespace LDS_SERVICE_EDS
 
                 if (posicionesEnProceso.TryAdd(numPosicion, nuevaTarea))
                 {
-                   Logger.EscribirLog($"Hilo iniciado para posición {numPosicion}.");
+                   //Logger.EscribirLog($"Hilo iniciado para posición {numPosicion}.");
                 }
                 else
                 {
@@ -575,12 +575,12 @@ namespace LDS_SERVICE_EDS
             // Ahora "posicionesUnicas" es una lista de int que contiene solo los números de posición diferentes.
             foreach (var posicion in posicionesUnicas)
             {
-                 Logger.EscribirLog($"Posición única: {posicion}");
+                // Logger.EscribirLog($"Posición única: {posicion}");
                 estado = await ObtenerEstadoAsync(url, timeout, posicion);
 
                 if (estado != null)
                 {
-                     Logger.EscribirLog($"Estado paraposicion, : {posicion}, el estado es: {estado.Estado} ");
+                     //Logger.EscribirLog($"Estado paraposicion, : {posicion}, el estado es: {estado.Estado} ");
                     if (estado.Estado.Equals("espera", StringComparison.OrdinalIgnoreCase))
                     {
                         posicionesDisponibles.Add(posicion);
@@ -677,7 +677,7 @@ namespace LDS_SERVICE_EDS
                     }
                 }
 
-               Logger.EscribirLog($"Se obtuvieron {listaDatos.Count} registros de la tabla LDS_VENTAS_EDS.");
+               //Logger.EscribirLog($"Se obtuvieron {listaDatos.Count} registros de la tabla LDS_VENTAS_EDS.");
             }
             catch (Exception ex)
             {
@@ -709,7 +709,7 @@ namespace LDS_SERVICE_EDS
 
                         if (rowsAffected > 0)
                         {
-                           Logger.EscribirLog($"Registro con IdPosicion {idPosicion} marcado como Procesado.");
+                        //   Logger.EscribirLog($"Registro con IdPosicion {idPosicion} marcado como Procesado.");
                         }
                         else
                         {
@@ -752,7 +752,7 @@ namespace LDS_SERVICE_EDS
 
                         if (rowsAffected > 0)
                         {
-                           Logger.EscribirLog("Registro agregado exitosamente a la tabla LDS_PAGAR_EDS.");
+                           //Logger.EscribirLog("Registro agregado exitosamente a la tabla LDS_PAGAR_EDS.");
                         }
                         else
                         {
@@ -842,7 +842,7 @@ namespace LDS_SERVICE_EDS
                        EventLogEntryType.Information);*/
             try
             {
-                Logger.EscribirLog("Iniciando ProcesoConteo_Elapsed...");
+                //Logger.EscribirLog("Iniciando ProcesoConteo_Elapsed...");
 
                 // 1. Obtener registros pendientes de la tabla LDS_VENTAS_EDS
                 List<LDS_VENTAS_EDS> ventasPendientes = await obtenerDatosPreset();
@@ -850,7 +850,7 @@ namespace LDS_SERVICE_EDS
                 if (ventasPendientes != null && ventasPendientes.Count > 0)
                 {
                     ResultadoVentaDto resultadoVentaDto;
-                    Logger.EscribirLog($"Se encontraron {ventasPendientes.Count} registros pendientes en LDS_VENTAS_EDS.");
+               // Logger.EscribirLog($"Se encontraron {ventasPendientes.Count} registros pendientes en LDS_VENTAS_EDS.");
 
               
 
@@ -883,7 +883,7 @@ namespace LDS_SERVICE_EDS
                 }
                 else
                 {
-                    Logger.EscribirLog("No hay registros pendientes en la tabla LDS_VENTAS_EDS.");
+                    //Logger.EscribirLog("No hay registros pendientes en la tabla LDS_VENTAS_EDS.");
                 }
             }
             catch (Exception ex)
